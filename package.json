@@ -1,0 +1,29 @@
+{
+  "name": "entry-recorder",
+  "version": "0.0.3",
+  "author": "aqu3180",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/idiotf/Entry_Recorder.git"
+  },
+  "main": "dist/index.js",
+  "devDependencies": {
+    "@types/chrome": "^0.0.313",
+    "@types/soundjs": "^0.6.31",
+    "ts-loader": "^9.5.2",
+    "typescript": "^5.8.3",
+    "webpack": "^5.99.6",
+    "webpack-cli": "^6.0.1"
+  },
+  "bugs": {
+    "url": "https://github.com/idiotf/Entry_Recorder/issues"
+  },
+  "description": "엔트리 작품을 동영상으로 녹화해줍니다.",
+  "homepage": "https://github.com/idiotf/Entry_Recorder#readme",
+  "license": "ISC",
+  "scripts": {
+    "watch": "webpack --watch",
+    "build": "webpack"
+  },
+  "type": "commonjs"
+}
