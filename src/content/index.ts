@@ -5,14 +5,15 @@ interface RecordOptions extends MediaRecorderOptions {
 }
 
 const options: Partial<RecordOptions> = {
-  mimeType: 'video/mp4'
+  mimeType: 'video/mp4;codecs="avc1.640032,mp4a.40.2"',
+  videoBitsPerSecond: 16_000_000,
 }
 
 record: {
   function record(width: number, height: number) {
     if (!(canvas instanceof HTMLCanvasElement)) return
     changeResolution(Entry, width, height)
-  
+
     // Entry FHD 비활성화
     Object.defineProperties(canvas, {
       offsetWidth: {
@@ -26,14 +27,14 @@ record: {
         },
       },
     })
-  
+
     const stream = canvas.captureStream(options?.frameRequestRate)
     const recorder = new MediaRecorder(stream, options)
-  
+
     const destination = new MediaStreamAudioDestinationNode(createjs.WebAudioSoundInstance.context)
     createjs.WebAudioSoundInstance.destinationNode.connect(destination)
     destination.stream.getTracks().forEach(track => stream.addTrack(track))
-  
+
     const parts: Blob[] = []
     recorder.addEventListener('dataavailable', ({ data }) => {
       if (!data.size) return

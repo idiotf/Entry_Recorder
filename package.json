@@ -8,11 +8,11 @@
   },
   "main": "dist/index.js",
   "devDependencies": {
-    "@types/chrome": "^0.0.313",
+    "@types/chrome": "^0.1.24",
     "@types/soundjs": "^0.6.31",
-    "ts-loader": "^9.5.2",
-    "typescript": "^5.8.3",
-    "webpack": "^5.99.6",
+    "ts-loader": "^9.5.4",
+    "typescript": "^5.9.3",
+    "webpack": "^5.102.1",
     "webpack-cli": "^6.0.1"
   },
   "bugs": {
