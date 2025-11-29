@@ -125,12 +125,6 @@ declare global {
     }
     
     interface Handle {
-      // dispatchEditStartEvent(): void
-      // getGlobalCoordinate(object: StageObject): {
-      //   x: number
-      //   y: number
-      // }
-      // knobs: StageObject[]
       getEventCoordinate(event: StageEvent): {
         x: number
         y: number
@@ -171,7 +165,9 @@ export function changeResolution(entry: typeof Entry, width: number, height: num
   const { canvas } = stage
   const canvasElement = canvas.canvas
 
-  if (useWebGL) for (const text of canvas.children.flatMap(function findTree(v): Entry.StageObject[] { return [v, ...v.children.flatMap(findTree)] }).filter(v => v.resolution)) text.resolution = width / 640
+  if (useWebGL) for (const text of canvas.children.flatMap(function findTree(v): Entry.StageObject[] {
+    return [v, ...v.children.flatMap(findTree)]
+  }).filter(v => v.resolution)) text.resolution = width / 640
 
   if (canvasElement.width != width || canvasElement.height != height) {
     canvasElement.width = width
@@ -250,16 +246,14 @@ export function changeResolution(entry: typeof Entry, width: number, height: num
   variables.forEach((variable, i) => {
     const { variable: variableObj } = variable
     const { slideBar_, valueSetter_, resizeHandle_, scrollButton_ } = variableObj
-    if (slideBar_) do {
-      if (slideBar_._viewportPatched == i) break
+    if (slideBar_ && slideBar_._viewportPatched != i) {
       slideBar_._viewportPatched = i
       slideBar_.removeAllListeners?.('__pointermove')
       slideBar_.removeAllEventListeners?.('mousedown')
       slideBar_.on(useWebGL ? '__pointermove' : 'mousedown', ({ stageX }) => engine.isState('run') && variableObj.setSlideCommandX(stageX / canvas.scaleX - variableObj.getX() - canvas.x / canvas.scaleX))
-    } while (false)
+    }
 
-    if (valueSetter_) do {
-      if (valueSetter_._viewportPatched == i) break
+    if (valueSetter_ && valueSetter_._viewportPatched != i) {
       valueSetter_._viewportPatched = i
       valueSetter_.removeAllListeners?.('__pointermove')
       valueSetter_.removeAllListeners?.('__pointerup')
@@ -270,32 +264,30 @@ export function changeResolution(entry: typeof Entry, width: number, height: num
         valueSetter_.offsetX = stageX / canvas.scaleX - valueSetter_.x
       ))
       valueSetter_.on(useWebGL ? '__pointerup' : 'pressmove', ({ stageX }) => engine.isState('run') && variableObj.setSlideCommandX(stageX / canvas.scaleX - valueSetter_.offsetX + 5))
-    } while (false)
+    }
 
-    if (resizeHandle_) do {
-      if (resizeHandle_._viewportPatched == i) break
+    if (resizeHandle_ && resizeHandle_._viewportPatched != i) {
       resizeHandle_._viewportPatched = i
       resizeHandle_.removeAllListeners?.('__pointermove')
       resizeHandle_.removeAllListeners?.('__pointerup')
       resizeHandle_.removeAllEventListeners?.('mousedown')
       resizeHandle_.removeAllEventListeners?.('pressmove')
       resizeHandle_.on(useWebGL ? '__pointermove' : 'mousedown', ({ stageX, stageY }) => {
-        variableObj.isResizing = !0,
+        variableObj.isResizing = !0
         resizeHandle_.offset = {
           x: stageX / canvas.scaleX - variableObj.getWidth(),
           y: stageY / canvas.scaleY - variableObj.getHeight(),
-        },
+        }
         resizeHandle_.parent.cursor = 'nwse-resize'
       })
       resizeHandle_.on(useWebGL ? '__pointerup' : 'pressmove', ({ stageX, stageY }) => {
-        variableObj.setWidth(stageX / canvas.scaleX - resizeHandle_.offset.x),
-        variableObj.setHeight(stageY / canvas.scaleY - resizeHandle_.offset.y),
+        variableObj.setWidth(stageX / canvas.scaleX - resizeHandle_.offset.x)
+        variableObj.setHeight(stageY / canvas.scaleY - resizeHandle_.offset.y)
         variableObj.updateView()
       })
-    } while (false)
+    }
 
-    if (scrollButton_) do {
-      if (scrollButton_._viewportPatched == i) break
+    if (scrollButton_ && scrollButton_._viewportPatched != i) {
       scrollButton_._viewportPatched = i
       scrollButton_.removeAllListeners?.('__pointermove')
       scrollButton_.removeAllListeners?.('__pointerup')
@@ -306,14 +298,12 @@ export function changeResolution(entry: typeof Entry, width: number, height: num
         scrollButton_.offsetY = stageY - scrollButton_.y * canvas.scaleY
       })
       scrollButton_.on(useWebGL ? '__pointerup' : 'pressmove', ({ stageY }) => {
-        const t = Math.max(25, Math.min(variableObj.getHeight() - 30, (stageY - scrollButton_.offsetY) / canvas.scaleY))
-        scrollButton_.y = t
+        scrollButton_.y = Math.max(25, Math.min(variableObj.getHeight() - 30, (stageY - scrollButton_.offsetY) / canvas.scaleY))
         variableObj.updateView()
       })
-    } while (false)
+    }
 
-    do {
-      if (variable._viewportPatched == i) break
+    if (variable._viewportPatched != i) {
       variable._viewportPatched = i
       variable.removeAllListeners?.('__pointermove')
       variable.removeAllListeners?.('__pointerup')
@@ -330,10 +320,26 @@ export function changeResolution(entry: typeof Entry, width: number, height: num
         variableObj.setY((stageY - canvas.y) / canvas.scaleY + variable.offset.y),
         variableObj.updateView()
       ))
-    } while (false)
+    }
   })
   stage.handle.getEventCoordinate = ({ stageX, stageY }) => ({
     x: (stageX - canvas.x) / canvas.scaleX,
     y: (stageY - canvas.y) / canvas.scaleY,
   })
+
+  // Entry FHD 비활성화
+  try {
+    Object.defineProperties(canvasElement, {
+      offsetWidth: {
+        get() {
+          return width / devicePixelRatio
+        },
+      },
+      offsetHeight: {
+        get() {
+          return height / devicePixelRatio
+        },
+      },
+    })
+  } catch {}
 }

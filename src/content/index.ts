@@ -14,20 +14,6 @@ record: {
     if (!(canvas instanceof HTMLCanvasElement)) return
     changeResolution(Entry, width, height)
 
-    // Entry FHD 비활성화
-    Object.defineProperties(canvas, {
-      offsetWidth: {
-        get() {
-          return width
-        },
-      },
-      offsetHeight: {
-        get() {
-          return height
-        },
-      },
-    })
-
     const stream = canvas.captureStream(options?.frameRequestRate)
     const recorder = new MediaRecorder(stream, options)
 
